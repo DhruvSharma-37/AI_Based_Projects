@@ -4,6 +4,11 @@ import models, schemas, crud
 from database import SessionLocal, engine
 from llm import summarize_text
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import UploadFile, File
+import PyPDF2
+import io
+from agents import summarize_with_agent
+
 
 app = FastAPI()
 
@@ -16,9 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Create tables
 models.Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
 
 # Dependency
 def get_db():
@@ -47,8 +51,48 @@ def delete_note(note_id: int, db: Session = Depends(get_db)):
     return crud.delete_note(db, note_id)
 
 
-# ✅ Summarize Note (LLM)
+# ✅ Summarize Note using AI Agent
 @app.post("/summarize")
 def summarize(note: schemas.NoteCreate):
-    summary = summarize_text(note.content)
-    return {"summary": summary}
+
+    summary = summarize_with_agent(note.content)
+
+    return {
+        "summary": summary
+    }
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+
+    try:
+
+        content = ""
+
+        # TXT file support
+        if file.filename.endswith(".txt"):
+
+            content = (
+                await file.read()
+            ).decode("utf-8")
+
+        # PDF file support
+        elif file.filename.endswith(".pdf"):
+
+            pdf_reader = PyPDF2.PdfReader(
+                io.BytesIO(await file.read())
+            )
+
+            for page in pdf_reader.pages:
+
+                content += page.extract_text()
+
+        # Summary generate
+        summary = summarize_text(content)
+
+        return {"summary": summary}
+
+    except Exception as e:
+
+        return {
+            "summary": "Error processing file"
+        }

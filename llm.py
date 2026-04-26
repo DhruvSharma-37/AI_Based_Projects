@@ -1,18 +1,20 @@
-import os
-from openai import OpenAI
-from dotenv import load_dotenv
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer
 
-load_dotenv()
+def summarize_text(text):
+    try:
+        parser = PlaintextParser.from_string(text, Tokenizer("english"))
+        summarizer = LsaSummarizer()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        # 👇 Yaha change kiya — 3 sentences summary
+        summary = summarizer(parser.document, 3)
 
-def summarize_text(text: str):
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Summarize the following text in a short and clear way."},
-            {"role": "user", "content": text}
-        ]
-    )
+        result = ""
+        for sentence in summary:
+            result += str(sentence) + " "
 
-    return response.choices[0].message.content
+        return result.strip()
+
+    except Exception as e:
+        return f"Error generating summary: {str(e)}"
