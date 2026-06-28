@@ -60,3 +60,36 @@ POST `/summarize`
 ## Author
 
 Dhruv Sharma
+
+
+## Installation & Setup
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Create a .env file
+
+```
+OPENAI_API_KEY=your_api_key
+```
+
+### 4. Run the application
+
+```bash
+python -m uvicorn app:app --reload
+```
+
+### 5. Open Swagger UI
+
+```
+http://127.0.0.1:8000/docs
+```
