@@ -93,3 +93,15 @@ python -m uvicorn app:app --reload
 ```
 http://127.0.0.1:8000/docs
 ```
+
+
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|----------|------------------|-------------------------------------|
+| POST | /notes | Create a new note |
+| GET | /notes | Retrieve all saved notes |
+| POST | /delete/{note_id} | Delete a note |
+| POST | /summarize | Generate AI summary |
+| POST | /upload | Upload TXT or PDF file and generate summary |
